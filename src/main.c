@@ -1,5 +1,6 @@
 #include "../include/mtree.h"
-#include "../include/digest_sha256.h"
+#include "../include/blockchain.h"
+#include<unistd.h>
 
 int main() {
     mt_list tree;
@@ -22,6 +23,22 @@ int main() {
     tree_test(&tree);
 
     deconstruct_tree(&tree);
+
+    blockchain chain;
+
+    construct_empty_blockchain(&chain, 3);
+
+    add_block(&chain, "Block 1");
+    add_block(&chain, "Block 2");
+    add_block(&chain, "Block 3");
+    
+    blockchain_test(&chain);
+
+    mine_block(&chain, 3, 2);
+
+    blockchain_test(&chain);
+
+    deconstruct_blockchain(&chain);
 
     return 0;
 }
