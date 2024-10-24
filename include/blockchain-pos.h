@@ -12,12 +12,11 @@
 struct block {
     struct block *next;
     char *prev_hash;
-    char *hash;
+    char *signature;
     char *data;
     time_t timestamp;
     char *sender;
-    bigint public_key;
-    char *signature;
+    char *public_key;
     char *valiator;
     bool valid;
 };
@@ -31,7 +30,7 @@ typedef struct {
 void construct_empty_blockchain(blockchain_pos *chain, uint32_t difficulty);
 void deconstruct_blockchain(blockchain_pos *chain);
 void sign_block(blockchain_pos *chain, struct block *block, char *sender);
-void add_block(blockchain_pos *chain, char *data);
+void add_block(blockchain_pos *chain, char *data, char *sender);
 void blockchain_test(blockchain_pos *chain);
 void validate_block(blockchain_pos *chain, uint32_t index);
 
