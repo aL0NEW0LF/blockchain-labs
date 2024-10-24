@@ -22,14 +22,14 @@ void add_block(blockchain_pos *chain, char *data, char *sender) {
     current_block->next = (struct block *)malloc(sizeof(struct block));
     current_block->next->prev_hash = current_block->signature;
     current_block->next->data = data;
-    current_block->next->public_key = digest_sha256(current_block->sender);
+    current_block->next->sender = sender;
+    current_block->next->public_key = digest_sha256(sender);
     char *to_hash = (char *)malloc(strlen(data) + strlen(current_block->next->public_key) + 1);
     strcpy(to_hash, data);
     strcat(to_hash, current_block->next->public_key);
     current_block->next->signature = digest_sha256(to_hash);
     current_block->next->timestamp = time(NULL);
     current_block->next->next = NULL;
-    current_block->next->sender = sender;
     current_block->next->valiator = NULL;
     chain->block_count++;
 
