@@ -2,8 +2,8 @@ CC         = gcc
 OBJ_DIR    = ./obj
 SRC_DIR    = ./src
 INCL_DIR   = ./include
-OBJECTS    = $(addprefix $(OBJ_DIR)/, mtree.o sha256.o digest_sha256.o blockchain.o)
-INCLUDES   = $(addprefix $(INCL_DIR)/, mtree.h sha256.h digest_sha256.h blockchain.h)
+OBJECTS    = $(addprefix $(OBJ_DIR)/, mtree.o sha256.o digest_sha256.o blockchain.o blockchain-pos.o)
+INCLUDES   = $(addprefix $(INCL_DIR)/, mtree.h sha256.h digest_sha256.h blockchain.h blockchain-pos.h)
 CFLAGS     = -g -Wall
 EXECUTABLE = main
 
