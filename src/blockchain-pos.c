@@ -1,10 +1,9 @@
 #include "../include/blockchain-pos.h"
 
-void construct_empty_blockchain(blockchain_pos *chain, uint32_t difficulty) {
-    chain->difficulty = difficulty;
+void construct_empty_blockchain_pos(blockchain_pos *chain) {
     chain->block_count = 1;
 
-    chain->blocks = (struct block *)malloc(sizeof(struct block));
+    chain->blocks = (struct block *)malloc(sizeof(struct block_pos));
     chain->blocks->next = NULL;
     chain->blocks->prev_hash = NULL;
     chain->blocks->data = "Genesis Block";
@@ -12,14 +11,14 @@ void construct_empty_blockchain(blockchain_pos *chain, uint32_t difficulty) {
     chain->blocks->timestamp = time(NULL);
 }
 
-void add_block(blockchain_pos *chain, char *data, char *sender) {
-    struct block *current_block = chain->blocks;
+void add_block_pos(blockchain_pos *chain, char *data, char *sender) {
+    struct block_pos *current_block = chain->blocks;
 
     for (int i = 0; i < chain->block_count - 1; i++) {
         current_block = current_block->next;
     }
 
-    current_block->next = (struct block *)malloc(sizeof(struct block));
+    current_block->next = (struct block_pos *)malloc(sizeof(struct block_pos));
     current_block->next->prev_hash = current_block->signature;
     current_block->next->data = data;
     current_block->next->sender = sender;
@@ -38,9 +37,9 @@ void add_block(blockchain_pos *chain, char *data, char *sender) {
     current_block = NULL;
 }
 
-void deconstruct_blockchain(blockchain_pos *chain) {
-    struct block *current_block = chain->blocks;
-    struct block *next_block = NULL;
+void deconstruct_blockchain_pos(blockchain_pos *chain) {
+    struct block_pos *current_block = chain->blocks;
+    struct block_pos *next_block = NULL;
 
     for (int i = 0; i < chain->block_count; i++) {
         next_block = current_block->next;
@@ -48,26 +47,40 @@ void deconstruct_blockchain(blockchain_pos *chain) {
         current_block = next_block;
     }
 
-    free(chain);
+
     chain = NULL;
     current_block = NULL;
     next_block = NULL;
 }
 
-void blockchain_test(blockchain_pos *chain) {
-    struct block *current_block = chain->blocks;
+void blockchain_test_pos(blockchain_pos *chain) {
+    struct block_pos *current_block = chain->blocks;
 
     printf("Blockchain Test\n");
 
     for (int i = 0; i < chain->block_count; i++) {
         printf("Block %d\n", i + 1);
-        printf("Prev Hash: %s\n", current_block->prev_hash);
+        if (current_block->prev_hash != NULL) {
+            printf("Previous Hash: %s\n", current_block->prev_hash);
+        } else {
+            printf("Previous Hash: None\n");
+        }
         printf("Data: %s\n", current_block->data);
         printf("Hash: %s\n", current_block->signature);
         printf("Timestamp: %ld\n", current_block->timestamp);
         printf("Sender: %s\n", current_block->sender);
         printf("Public Key: ");
-        printf("%s\n", current_block->public_key);
+        if (current_block->public_key != NULL) {
+            printf("%s\n", current_block->public_key);
+        } else {
+            printf("None\n");
+        }
+        printf("Validator: ");
+        if (current_block->valiator != NULL) {
+            printf("%s\n", current_block->valiator->username);
+        } else {
+            printf("None\n");
+        }
         printf("\n");
 
         current_block = current_block->next;
@@ -78,8 +91,29 @@ void blockchain_test(blockchain_pos *chain) {
     current_block = NULL;
 }
 
-void validate_block(blockchain_pos *chain, uint32_t index) {
-    struct block *current_block = chain->blocks;
+struct validator choose_validator(blockchain_pos *chain, struct block_pos *block, struct validator *validators) {
+    struct block_pos *current_block = chain->blocks;
+
+    for (int i = 0; i < chain->block_count - 1; i++) {
+        current_block = current_block->next;
+    }
+
+    uint32_t amount = strtol(current_block->sender, NULL, 10);
+    uint32_t max_stake = 0;
+    struct validator *max_validator = NULL;
+    
+    for (int i = 0; i < 3; i++) {
+        if (validators[i].stake > max_stake) {
+            max_stake = validators[i].stake;
+            max_validator = &validators[i];
+        }
+    }
+
+    return *max_validator;
+}
+
+void validate_block_pos(blockchain_pos *chain, uint32_t index, struct validator *validator) {
+    struct block_pos *current_block = chain->blocks;
 
     for (int i = 0; i < index; i++) {
         current_block = current_block->next;
@@ -92,8 +126,10 @@ void validate_block(blockchain_pos *chain, uint32_t index) {
 
     if (strcmp(hash, current_block->signature) == 0) {
         current_block->valid = true;
+        current_block->valiator = validator;
     } else {
         current_block->valid = false;
+        current_block->valiator = validator;
     }
 
     free(to_hash);
