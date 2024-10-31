@@ -59,6 +59,8 @@ int main() {
 
     blockchain_test_pos(&chain_pos);
 
+    printf("-----------------------------------------\n");
+
     struct validator chosen_validator = choose_validator(&chain_pos, chain_pos.blocks, validators);
 
     validate_block_pos(&chain_pos, 1, &chosen_validator);
@@ -66,6 +68,8 @@ int main() {
     validate_block_pos(&chain_pos, 3, &chosen_validator);
 
     blockchain_test_pos(&chain_pos);
+
+    printf("-----------------------------------------\n");
 
     deconstruct_blockchain_pos(&chain_pos);
 
