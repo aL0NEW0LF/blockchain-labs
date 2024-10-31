@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <time.h>
 #include <math.h>
 
 char *string_to_binary(char *s);
