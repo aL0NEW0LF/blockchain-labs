@@ -12,15 +12,27 @@ cd blockchain-labs
 mkdir obj
 ```
 
+**to compile and run the hash test:**
+
 ```shell
-make
+make hash_test
 ```
 
 ```shell
-./main
+./hash_test
 ```
 
-To clean the project:
+**to compile and run the blockchain test:**
+
+```shell
+make blockchain_test
+```
+
+```shell
+./blockchain_test
+```
+
+**To clean the project:**
 
 ```shell
 make clean
