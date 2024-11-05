@@ -1,11 +1,13 @@
-Developed on Ubuntu.
+Developed on Ubuntu 22.04
+
+### To test C code:
 
 ```shell
 git clone https://github.com/aL0NEW0LF/blockchain-labs.git
 ```
 
 ```shell
-cd blockchain-labs
+cd blockchain-labs/c
 ```
 
 ```shell
