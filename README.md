@@ -40,6 +40,38 @@ make blockchain_test
 make clean
 ```
 
+### To test the twitter Dapp:
+
+Fist, you need compile and deploy the smart contract using remix IDE.
+
+Then to start the hardhat server:
+
+```shell
+cd blockchain-labs/hhproject/chain
+```
+
+```shell
+pnpm install
+```
+
+```shell
+npx hardhat node
+```
+
+Then to start the frontend:
+
+```shell
+cd blockchain-labs/hhproject/webapp
+```
+
+And start a python server:
+
+```shell
+python3 -m http.server
+```
+
+Then open the browser and go to `http://localhost:8000/social_media.html`
+
 # References
 
 - B-Con, “Github - b-con/crypto-algorithms: Basic implementations of standard cryptography algorithms, like
