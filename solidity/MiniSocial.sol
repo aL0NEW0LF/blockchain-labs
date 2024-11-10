@@ -1,40 +1,113 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
 
-pragma solidity >=0.8.2 <0.9.0;
+contract Twitter{
 
-contract MiniSocial {
-
+    address public owner;
     uint256 public TWEET_MAX_LENGTH = 300;
-
-    struct Post {
+    
+    struct Tweet {
         uint256 id;
         address author;
         string content;
         uint256 timestamp;
         uint256 likes;
+        uint256 dislikes;
+        bool isDeleted;
     }
 
-    mapping ( address => Post[] ) Posts;
+    constructor(){
+        owner = msg.sender;
+    }
 
-    function publishPost(string memory _message) public {
-        require ( bytes(_message).length <= TWEET_MAX_LENGTH, "tweet is to long");
+    mapping (address => Tweet[]) tweets;
+    mapping(uint => mapping(address => bool)) public Liked;
+    mapping(uint => mapping(address => bool)) public Disliked;
 
-        Post memory newPost = Post({
-            id: Posts[msg.sender].length,
+
+    event TweetCreated(uint256 id, address author, string content, uint256 timestamp, uint256 likes);
+    event TweetLiked (address liker, address tweetAuthot, uint256 id, uint256 newLikeCount);
+    event TweetUnLiked (address unLiker, address tweetAuthot, uint256 id, uint256 newLikeCount);
+
+    function createTweet(string memory _tweet) public {
+        
+        require ( bytes(_tweet).length <= TWEET_MAX_LENGTH, "tweet is to long");
+
+        Tweet memory newTweet = Tweet({
+            id: tweets[msg.sender].length,
             author: msg.sender,
-            content: _message,
+            content: _tweet,
             timestamp: block.timestamp,
-            likes: 0
+            likes: 0,
+            dislikes: 0,
+            isDeleted: false
         });
+            
+        tweets[msg.sender].push(newTweet); 
 
-        Posts[msg.sender].push(newPost);
+        emit TweetCreated(newTweet.id, newTweet.author, newTweet.content, newTweet.timestamp, newTweet.likes);   
     }
 
-    function getPost(uint256 _index) public view returns (string memory, address){
-        return (Posts[msg.sender][_index].content, Posts[msg.sender][_index].author);
+    function likeTweet (address author, uint256 id) external {
+        require(!Liked[id][msg.sender], "You have already liked or disliked this tweet");
+
+        Liked[id][msg.sender] = true;
+        Disliked[id][msg.sender] = false;
+        tweets[author][id].likes++;
+        tweets[author][id].dislikes--;
+
+        emit TweetLiked(msg.sender, author, id, tweets[author][id].likes);
     }
 
-    function getAllTweets (address _author) public view returns (Post[] memory){
-            return Posts[_author];
+    function unLikeTweet(address author, uint256 id) external {
+        require(!Disliked[id][msg.sender], "You have not liked this tweet or have already disliked it");
+
+        Disliked[id][msg.sender] = true;
+        Liked[id][msg.sender] = false;
+        tweets[author][id].likes--;
+        tweets[author][id].dislikes++;
+
+        emit TweetUnLiked(msg.sender, author, id, tweets[author][id].likes);
+    } 
+
+
+    modifier onlyOwner(){
+        require(msg.sender == owner, "ONLY THE OWNER CAN DO THIS");
+        _;
+    }
+
+    modifier onlyAuthor(uint256 _index, address _author){
+        require(msg.sender == tweets[_author][_index].author, "Only tweet author can do this");
+        _;
+    }
+
+    function changeTweetLength (uint256 _newTweetLength) public onlyOwner {
+        TWEET_MAX_LENGTH = _newTweetLength;
+    }
+
+    function getTweet ( uint _i) public view returns (Tweet memory){
+        return tweets[msg.sender][_i];
+    }   
+
+    function getAllTweets (address author) public view returns (Tweet[] memory){
+        return tweets[author];
+    }
+
+    function deleteTweet(uint256 id, address author) external onlyAuthor(id, author) {
+        require(_exists(id), "Tweet does not exist");
+        
+        delete tweets[author][id];
+        tweets[author][id].isDeleted = true;
+    }
+
+    function _exists (uint256 id) internal view returns (bool){
+        return getAllTweets(msg.sender).length > id;
+    }
+
+    function modifyTweet (address author, uint256 id, string memory _tweetContent ) external onlyAuthor(id, author) {
+        require(_exists(id), "Tweet does not exist");
+        require ( bytes(_tweetContent).length <= TWEET_MAX_LENGTH, "tweet is to long" );
+    
+        tweets[author][id].content = _tweetContent;
     }
 }
